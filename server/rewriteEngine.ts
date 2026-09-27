@@ -1,4 +1,10 @@
 import { Type } from '@google/genai';
+import { createClient } from '@insforge/sdk';
+
+const insforgeClient = createClient({
+  baseUrl: process.env.INSFORGE_BASE_URL || 'https://2y4k8jwr.us-east.insforge.app',
+  anonKey: process.env.INSFORGE_API_KEY || 'ik_44baf229fbf982d963b2277e284be487',
+});
 
 export interface SemanticRewriteInput {
   videoId?: string;
@@ -248,42 +254,76 @@ Return ONLY a JSON object with this exact schema:
 }`;
 
     try {
-      console.log(`[Gemini AI Rewrite] Attempting AI generation attempt ${attempt} for: "${origTitle}"`);
-      const response = await ai.models.generateContent({
-        model: 'gemini-3.8-flash',
-        contents: prompt,
-        config: {
-          safetySettings: [
-            { category: 'HARM_CATEGORY_HARASSMENT' as any, threshold: 'BLOCK_NONE' as any },
-            { category: 'HARM_CATEGORY_HATE_SPEECH' as any, threshold: 'BLOCK_NONE' as any },
-            { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT' as any, threshold: 'BLOCK_NONE' as any },
-            { category: 'HARM_CATEGORY_DANGEROUS_CONTENT' as any, threshold: 'BLOCK_NONE' as any },
-            { category: 'HARM_CATEGORY_CIVIC_INTEGRITY' as any, threshold: 'BLOCK_NONE' as any },
-          ],
-          responseMimeType: 'application/json',
-          responseSchema: {
-            type: Type.OBJECT,
-            properties: {
-              primaryTitle: { type: Type.STRING },
-              generatedDescription: { type: Type.STRING },
-              variants: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING },
-              },
-              seoTags: {
-                type: Type.ARRAY,
-                items: { type: Type.STRING },
-              },
-              score: { type: Type.NUMBER },
-              reasoning: { type: Type.STRING },
-            },
-            required: ['primaryTitle', 'generatedDescription', 'variants', 'seoTags', 'score', 'reasoning'],
-          },
-        },
-      });
+      console.log(`[AI Rewrite] Attempting generation attempt ${attempt} for: "${origTitle}"`);
 
-      console.log(`[Gemini AI Rewrite] Response received from model:`, response.text?.slice(0, 150));
-      const parsed = JSON.parse(response.text || '{}');
+      let parsed: any = null;
+
+      // 1. First attempt using InsForge AI SDK
+      try {
+        console.log(`[InsForge AI] Requesting chat completion with model gpt-4o-mini...`);
+        const insforgeRes = await insforgeClient.ai.chat.completions.create({
+          model: 'gpt-4o-mini',
+          messages: [
+            {
+              role: 'system',
+              content: 'You are an expert Copywriter and Video SEO Strategist. Always respond with valid JSON matching the requested schema.'
+            },
+            {
+              role: 'user',
+              content: prompt
+            }
+          ],
+          response_format: { type: 'json_object' }
+        });
+
+        const insforgeText = insforgeRes?.choices?.[0]?.message?.content;
+        if (insforgeText) {
+          parsed = JSON.parse(insforgeText);
+          console.log(`[InsForge AI] Successfully generated rewrite via InsForge AI model gateway!`);
+        }
+      } catch (insforgeErr: any) {
+        console.log(`[InsForge AI] Note: ${insforgeErr?.message || insforgeErr}. Falling back seamlessly to Gemini 3.8 Flash...`);
+      }
+
+      // 2. If InsForge AI was unavailable or skipped, fallback to Gemini 3.8 Flash
+      if (!parsed) {
+        const response = await ai.models.generateContent({
+          model: 'gemini-3.8-flash',
+          contents: prompt,
+          config: {
+            safetySettings: [
+              { category: 'HARM_CATEGORY_HARASSMENT' as any, threshold: 'BLOCK_NONE' as any },
+              { category: 'HARM_CATEGORY_HATE_SPEECH' as any, threshold: 'BLOCK_NONE' as any },
+              { category: 'HARM_CATEGORY_SEXUALLY_EXPLICIT' as any, threshold: 'BLOCK_NONE' as any },
+              { category: 'HARM_CATEGORY_DANGEROUS_CONTENT' as any, threshold: 'BLOCK_NONE' as any },
+              { category: 'HARM_CATEGORY_CIVIC_INTEGRITY' as any, threshold: 'BLOCK_NONE' as any },
+            ],
+            responseMimeType: 'application/json',
+            responseSchema: {
+              type: Type.OBJECT,
+              properties: {
+                primaryTitle: { type: Type.STRING },
+                generatedDescription: { type: Type.STRING },
+                variants: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                },
+                seoTags: {
+                  type: Type.ARRAY,
+                  items: { type: Type.STRING },
+                },
+                score: { type: Type.NUMBER },
+                reasoning: { type: Type.STRING },
+              },
+              required: ['primaryTitle', 'generatedDescription', 'variants', 'seoTags', 'score', 'reasoning'],
+            },
+          },
+        });
+
+        console.log(`[Gemini AI] Response received from model:`, response.text?.slice(0, 150));
+        parsed = JSON.parse(response.text || '{}');
+      }
+
       const candidateTitle = (parsed.primaryTitle || '').trim();
       const candidateDesc = (parsed.generatedDescription || '').trim();
 
