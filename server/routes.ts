@@ -1068,9 +1068,6 @@ router.post('/admin/rewrite-title/batch', requireAdmin, async (req: AuthRequest,
     return res.status(500).json({ error: err?.message || 'Batch rewrite failed' });
   }
 });
-    return res.status(500).json({ error: err?.message || 'Batch rewrite failed' });
-  }
-});
 
 // Admin Provider Search (XVideos Feed API)
 router.post('/provider/search', requireAdmin, async (req: AuthRequest, res: Response) => {
