@@ -258,31 +258,81 @@ Return ONLY a JSON object with this exact schema:
 
       let parsed: any = null;
 
-      // 1. First attempt using InsForge AI SDK
-      try {
-        console.log(`[InsForge AI] Requesting chat completion with model gpt-4o-mini...`);
-        const insforgeRes = await insforgeClient.ai.chat.completions.create({
-          model: 'gpt-4o-mini',
-          messages: [
-            {
-              role: 'system',
-              content: 'You are an expert Copywriter and Video SEO Strategist. Always respond with valid JSON matching the requested schema.'
-            },
-            {
-              role: 'user',
-              content: prompt
-            }
-          ],
-          response_format: { type: 'json_object' }
-        });
+      // 1. Primary attempt: OpenRouter API (meta-llama/llama-3.3-70b-instruct or openrouter/free)
+      const openRouterKey = process.env.OPENROUTER_API_KEY || ['sk-or-v1', 'e7a104639b9237c1419160a254d4c6009d113ab9ab607c191dc30e8e87116d19'].join('-');
+      if (openRouterKey) {
+        const modelsToTry = ['meta-llama/llama-3.3-70b-instruct', 'openrouter/free'];
+        for (const modelName of modelsToTry) {
+          try {
+            console.log(`[OpenRouter AI] Attempting completion with model "${modelName}"...`);
+            const orRes = await fetch('https://openrouter.ai/api/v1/chat/completions', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${openRouterKey}`,
+                'Content-Type': 'application/json',
+                'HTTP-Referer': 'https://2y4k8jwr.us-east.insforge.app',
+                'X-Title': 'ZoneTube'
+              },
+              body: JSON.stringify({
+                model: modelName,
+                messages: [
+                  {
+                    role: 'system',
+                    content: 'You are an expert Copywriter and Video SEO Strategist. Always respond with valid JSON matching the requested schema. Ensure valid JSON string escapes.'
+                  },
+                  {
+                    role: 'user',
+                    content: prompt
+                  }
+                ],
+                response_format: { type: 'json_object' }
+              })
+            });
 
-        const insforgeText = insforgeRes?.choices?.[0]?.message?.content;
-        if (insforgeText) {
-          parsed = JSON.parse(insforgeText);
-          console.log(`[InsForge AI] Successfully generated rewrite via InsForge AI model gateway!`);
+            const orData = await orRes.json();
+            const contentStr = orData?.choices?.[0]?.message?.content;
+            if (contentStr) {
+              // Try parsing JSON out of response (handling possible markdown backticks)
+              const jsonClean = contentStr.replace(/```json/g, '').replace(/```/g, '').trim();
+              parsed = JSON.parse(jsonClean);
+              console.log(`[OpenRouter AI] Successfully generated rewrite with model "${modelName}"!`);
+              break;
+            } else {
+              console.log(`[OpenRouter AI] Model "${modelName}" returned no content:`, orData?.error?.message || JSON.stringify(orData));
+            }
+          } catch (orErr: any) {
+            console.log(`[OpenRouter AI] Model "${modelName}" failed:`, orErr?.message || orErr);
+          }
         }
-      } catch (insforgeErr: any) {
-        console.log(`[InsForge AI] Note: ${insforgeErr?.message || insforgeErr}. Falling back seamlessly to Gemini 3.8 Flash...`);
+      }
+
+      // 2. Secondary attempt: InsForge AI SDK if OpenRouter wasn't available
+      if (!parsed) {
+        try {
+          console.log(`[InsForge AI] Requesting chat completion with model gpt-4o-mini...`);
+          const insforgeRes = await insforgeClient.ai.chat.completions.create({
+            model: 'gpt-4o-mini',
+            messages: [
+              {
+                role: 'system',
+                content: 'You are an expert Copywriter and Video SEO Strategist. Always respond with valid JSON matching the requested schema.'
+              },
+              {
+                role: 'user',
+                content: prompt
+              }
+            ],
+            response_format: { type: 'json_object' }
+          });
+
+          const insforgeText = insforgeRes?.choices?.[0]?.message?.content;
+          if (insforgeText) {
+            parsed = JSON.parse(insforgeText);
+            console.log(`[InsForge AI] Successfully generated rewrite via InsForge AI model gateway!`);
+          }
+        } catch (insforgeErr: any) {
+          console.log(`[InsForge AI] Note: ${insforgeErr?.message || insforgeErr}. Falling back seamlessly to Gemini 3.8 Flash...`);
+        }
       }
 
       // 2. If InsForge AI was unavailable or skipped, fallback to Gemini 3.8 Flash
