@@ -1,0 +1,487 @@
+@import "tailwindcss";
+
+@layer base {
+  /* 1. DARK MODE (Midnight Obsidian - Default) */
+  :root,
+  :root.dark,
+  :root[data-theme="dark"] {
+    --bg-main: #08090D;
+    --bg-secondary: #101218;
+    --bg-card: #151821;
+    --bg-hover: #1E2230;
+    --bg-subtle: rgba(255, 255, 255, 0.05);
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-bright: rgba(255, 255, 255, 0.18);
+    --text-primary: #FFFFFF;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+    --card-shadow: 0 4px 20px rgba(0, 0, 0, 0.45);
+    --card-hover-shadow: 0 16px 32px rgba(0, 0, 0, 0.65);
+    --header-glass: rgba(16, 18, 24, 0.88);
+    --btn-secondary-bg: #151821;
+    --btn-secondary-text: #FFFFFF;
+    --btn-secondary-border: rgba(255, 255, 255, 0.12);
+    --input-bg: #101218;
+    --input-border: rgba(255, 255, 255, 0.12);
+    --input-text: #FFFFFF;
+    --accent-red: #E50914;
+    --accent-hover: #F6121D;
+    --accent-rgb: 229, 9, 20;
+    --accent-glow: rgba(229, 9, 20, 0.4);
+    --accent-subtle: rgba(229, 9, 20, 0.16);
+    --accent-border: rgba(229, 9, 20, 0.42);
+    color-scheme: dark;
+  }
+
+  /* 2. LIGHT MODE (Pure Porcelain / Nordic Daylight) */
+  :root.light,
+  :root[data-theme="light"] {
+    --bg-main: #F4F6F9;
+    --bg-secondary: #FFFFFF;
+    --bg-card: #FFFFFF;
+    --bg-hover: #EDF2F7;
+    --bg-subtle: #F1F5F9;
+    --border-color: #E2E8F0;
+    --border-bright: #CBD5E1;
+    --text-primary: #0F172A;
+    --text-secondary: #475569;
+    --text-muted: #94A3B8;
+    --card-shadow: 0 2px 10px rgba(15, 23, 42, 0.05), 0 1px 3px rgba(15, 23, 42, 0.03);
+    --card-hover-shadow: 0 12px 28px -4px rgba(15, 23, 42, 0.12), 0 4px 10px -2px rgba(15, 23, 42, 0.05);
+    --header-glass: rgba(255, 255, 255, 0.94);
+    --btn-secondary-bg: #FFFFFF;
+    --btn-secondary-text: #0F172A;
+    --btn-secondary-border: #E2E8F0;
+    --input-bg: #FFFFFF;
+    --input-border: #CBD5E1;
+    --input-text: #0F172A;
+    --accent-red: #E50914;
+    --accent-hover: #F6121D;
+    --accent-rgb: 229, 9, 20;
+    --accent-glow: rgba(229, 9, 20, 0.28);
+    --accent-subtle: rgba(229, 9, 20, 0.12);
+    --accent-border: rgba(229, 9, 20, 0.35);
+    color-scheme: light;
+  }
+
+  /* 3. CYBER MODE (Neon Sapphire & Electric Cobalt) */
+  :root.theme-cyber,
+  :root[data-theme="cyber"] {
+    --bg-main: #050B17;
+    --bg-secondary: #0A1326;
+    --bg-card: #0F1C38;
+    --bg-hover: #172A52;
+    --bg-subtle: rgba(59, 130, 246, 0.1);
+    --border-color: rgba(59, 130, 246, 0.18);
+    --border-bright: rgba(99, 102, 241, 0.42);
+    --text-primary: #F0F6FF;
+    --text-secondary: #93C5FD;
+    --text-muted: #60A5FA;
+    --card-shadow: 0 4px 24px rgba(5, 11, 23, 0.7), 0 0 15px rgba(59, 130, 246, 0.12);
+    --card-hover-shadow: 0 16px 36px rgba(5, 11, 23, 0.85), 0 0 24px rgba(59, 130, 246, 0.25);
+    --header-glass: rgba(10, 19, 38, 0.9);
+    --btn-secondary-bg: #0F1C38;
+    --btn-secondary-text: #F0F6FF;
+    --btn-secondary-border: rgba(59, 130, 246, 0.25);
+    --input-bg: #0A1326;
+    --input-border: rgba(59, 130, 246, 0.25);
+    --input-text: #F0F6FF;
+    --accent-red: #3B82F6;
+    --accent-hover: #60A5FA;
+    --accent-rgb: 59, 130, 246;
+    --accent-glow: rgba(59, 130, 246, 0.45);
+    --accent-subtle: rgba(59, 130, 246, 0.16);
+    --accent-border: rgba(59, 130, 246, 0.45);
+    color-scheme: dark;
+  }
+
+  /* 4. EMERALD MODE (Emerald Velvet / Luxury Forest) */
+  :root.theme-emerald,
+  :root[data-theme="emerald"] {
+    --bg-main: #04130E;
+    --bg-secondary: #081E17;
+    --bg-card: #0D2A20;
+    --bg-hover: #143C2E;
+    --bg-subtle: rgba(16, 185, 129, 0.1);
+    --border-color: rgba(16, 185, 129, 0.2);
+    --border-bright: rgba(52, 211, 153, 0.45);
+    --text-primary: #F0FDF4;
+    --text-secondary: #86EFAC;
+    --text-muted: #4ADE80;
+    --card-shadow: 0 4px 24px rgba(4, 19, 14, 0.7), 0 0 15px rgba(16, 185, 129, 0.12);
+    --card-hover-shadow: 0 16px 36px rgba(4, 19, 14, 0.85), 0 0 24px rgba(16, 185, 129, 0.25);
+    --header-glass: rgba(8, 30, 23, 0.9);
+    --btn-secondary-bg: #0D2A20;
+    --btn-secondary-text: #F0FDF4;
+    --btn-secondary-border: rgba(16, 185, 129, 0.25);
+    --input-bg: #081E17;
+    --input-border: rgba(16, 185, 129, 0.25);
+    --input-text: #F0FDF4;
+    --accent-red: #10B981;
+    --accent-hover: #34D399;
+    --accent-rgb: 16, 185, 129;
+    --accent-glow: rgba(16, 185, 129, 0.45);
+    --accent-subtle: rgba(16, 185, 129, 0.16);
+    --accent-border: rgba(16, 185, 129, 0.45);
+    color-scheme: dark;
+  }
+
+  body {
+    background-color: var(--bg-main);
+    color: var(--text-primary);
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background-color 0.25s ease, color 0.25s ease;
+  }
+}
+
+/* ==========================================================
+   LIGHT MODE OVERRIDES FOR HARDCODED DARK UTILITY CLASSES
+   ========================================================== */
+:root.light .bg-\[\#08090D\]:not(footer):not(.keep-dark),
+:root.light .bg-\[\#0a0c12\],
+:root.light .bg-\[\#0E1017\],
+:root.light .bg-\[\#101218\],
+:root.light .bg-\[\#12141c\],
+:root.light .bg-\[\#151821\],
+:root.light .bg-\[\#1a1d2b\],
+:root.light .bg-\[\#1c202a\],
+:root.light .bg-\[\#1f2433\],
+:root.light .bg-zinc-900,
+:root.light .bg-zinc-950,
+:root.light .bg-black\/80,
+:root.light .bg-black\/60,
+:root.light .bg-black\/40 {
+  background-color: var(--bg-card) !important;
+}
+
+:root.light .bg-\[\#08090D\]\/90:not(footer),
+:root.light .bg-\[\#08090D\]\/95:not(footer),
+:root.light .bg-\[\#101218\]\/90,
+:root.light .bg-\[\#151821\]\/90,
+:root.light header.backdrop-blur-md,
+:root.light aside.backdrop-blur-md {
+  background-color: var(--header-glass) !important;
+  backdrop-filter: blur(16px);
+  border-color: var(--border-color) !important;
+}
+
+:root.light .text-white,
+:root.light .text-zinc-100,
+:root.light .text-zinc-200,
+:root.light .text-zinc-300,
+:root.light .text-gray-100,
+:root.light .text-gray-200,
+:root.light .text-gray-300 {
+  color: var(--text-primary) !important;
+}
+
+:root.light .text-zinc-400,
+:root.light .text-zinc-500,
+:root.light .text-gray-400,
+:root.light .text-gray-500 {
+  color: var(--text-secondary) !important;
+}
+
+:root.light .border-white\/5,
+:root.light .border-white\/10,
+:root.light .border-white\/15,
+:root.light .border-white\/20,
+:root.light .border-white\/30,
+:root.light .border-zinc-800,
+:root.light .border-zinc-700,
+:root.light .border-zinc-600 {
+  border-color: var(--border-color) !important;
+}
+
+:root.light input,
+:root.light select,
+:root.light textarea {
+  background-color: #FFFFFF !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-bright) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+}
+
+:root.light input::placeholder,
+:root.light textarea::placeholder {
+  color: #94A3B8 !important;
+}
+
+/* Light mode card elevation */
+:root.light .video-card {
+  background: #FFFFFF !important;
+  border: 1px solid #E2E8F0 !important;
+  box-shadow: var(--card-shadow) !important;
+}
+
+:root.light .video-card:hover {
+  border-color: #CBD5E1 !important;
+  box-shadow: var(--card-hover-shadow) !important;
+}
+
+/* Light mode secondary buttons & cards */
+:root.light .btn-secondary {
+  background-color: #FFFFFF !important;
+  color: #0F172A !important;
+  border-color: #E2E8F0 !important;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+}
+
+:root.light .btn-secondary:hover {
+  background-color: #F8FAFC !important;
+  border-color: #CBD5E1 !important;
+}
+
+:root.light .btn-soft {
+  background-color: #F1F5F9 !important;
+  color: #0F172A !important;
+  border: 1px solid #E2E8F0 !important;
+}
+
+:root.light .btn-soft:hover {
+  background-color: #E2E8F0 !important;
+}
+
+/* Keep Footer Pristine Dark on all themes */
+footer.keep-dark,
+:root.light footer {
+  background-color: #08090D !important;
+  color: #94A3B8 !important;
+  border-top-color: rgba(255, 255, 255, 0.08) !important;
+}
+:root.light footer h4,
+:root.light footer .text-white,
+:root.light footer a:hover,
+:root.light footer button:hover {
+  color: #FFFFFF !important;
+}
+
+/* ==========================================================
+   CYBER MODE SPECIFIC ENHANCEMENTS
+   ========================================================== */
+:root.theme-cyber .bg-\[\#08090D\]:not(footer),
+:root.theme-cyber .bg-\[\#101218\],
+:root.theme-cyber .bg-\[\#151821\] {
+  background-color: var(--bg-card);
+}
+
+:root.theme-cyber .video-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  box-shadow: var(--card-shadow);
+}
+
+:root.theme-cyber .video-card:hover {
+  border-color: rgba(99, 102, 241, 0.5);
+  box-shadow: var(--card-hover-shadow);
+}
+
+/* ==========================================================
+   EMERALD MODE SPECIFIC ENHANCEMENTS
+   ========================================================== */
+:root.theme-emerald .bg-\[\#08090D\]:not(footer),
+:root.theme-emerald .bg-\[\#101218\],
+:root.theme-emerald .bg-\[\#151821\] {
+  background-color: var(--bg-card);
+}
+
+:root.theme-emerald .video-card {
+  background: var(--bg-card);
+  border: 1px solid rgba(16, 185, 129, 0.22);
+  box-shadow: var(--card-shadow);
+}
+
+:root.theme-emerald .video-card:hover {
+  border-color: rgba(52, 211, 153, 0.5);
+  box-shadow: var(--card-hover-shadow);
+}
+
+/* ==========================================================
+   SCROLLBAR & BASE UTILITIES
+   ========================================================== */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-main);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border-bright);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
+}
+
+.bg-main { background-color: var(--bg-main); }
+.bg-secondary { background-color: var(--bg-secondary); }
+.bg-card { background-color: var(--bg-card); }
+.bg-hover { background-color: var(--bg-hover); }
+.border-subtle { border-color: var(--border-color); }
+.border-bright { border-color: var(--border-bright); }
+.text-primary { color: var(--text-primary); }
+.text-secondary { color: var(--text-secondary); }
+.text-accent { color: var(--accent-red); }
+.bg-accent { background-color: var(--accent-red); }
+
+/* Logo */
+.logo {
+  display: inline-flex;
+  align-items: center;
+  font-weight: 900;
+  font-size: 1.4rem;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  user-select: none;
+}
+.logo-first-letter {
+  color: var(--accent-red);
+  font-weight: 900;
+  text-transform: uppercase;
+}
+.logo-rest {
+  color: var(--text-primary);
+  font-weight: 900;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.25rem;
+  border-radius: 0.625rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: pointer;
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.btn-primary {
+  background-color: var(--accent-red);
+  color: #ffffff;
+  box-shadow: 0 2px 10px var(--accent-glow, rgba(229, 9, 20, 0.35));
+}
+.btn-primary:hover {
+  background-color: var(--accent-hover);
+  box-shadow: 0 4px 16px var(--accent-glow, rgba(229, 9, 20, 0.5));
+  transform: translateY(-1px);
+}
+.btn-secondary {
+  background-color: var(--btn-secondary-bg);
+  color: var(--btn-secondary-text);
+  border-color: var(--btn-secondary-border);
+}
+.btn-secondary:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--border-bright);
+}
+.btn-outline {
+  background-color: transparent;
+  color: var(--text-primary);
+  border-color: var(--border-bright);
+}
+.btn-outline:hover {
+  background-color: var(--bg-hover);
+}
+.btn-soft {
+  background-color: var(--bg-subtle);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+}
+.btn-soft:hover {
+  background-color: var(--bg-hover);
+  border-color: var(--border-bright);
+}
+.btn-danger {
+  background-color: #dc2626;
+  color: #ffffff;
+}
+.btn-danger:hover {
+  background-color: #b91c1c;
+}
+
+/* Video Card Hover & Thumbnail Aspect */
+.video-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 0.875rem;
+  overflow: hidden;
+  transition: transform 0.22s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.22s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.22s ease;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+}
+.video-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--card-hover-shadow);
+  border-color: var(--border-bright);
+}
+.thumbnail-wrap {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%; /* 16:9 Aspect Ratio */
+  overflow: hidden;
+  background-color: #101218;
+}
+.thumbnail-wrap img {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.35s ease;
+}
+.video-card:hover .thumbnail-wrap img {
+  transform: scale(1.05);
+}
+.duration {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background: rgba(8, 9, 13, 0.88);
+  backdrop-filter: blur(4px);
+  color: #ffffff;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+}
+.thumbnail-play {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0.8);
+  width: 46px;
+  height: 46px;
+  background: var(--accent-red);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px var(--accent-glow);
+}
+.video-card:hover .thumbnail-play {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+/* Skeleton Pulse Animation */
+@keyframes skeleton-pulse {
+  0% { opacity: 0.6; }
+  50% { opacity: 0.3; }
+  100% { opacity: 0.6; }
+}
+.animate-pulse-slow {
+  animation: skeleton-pulse 1.8s infinite ease-in-out;
+}

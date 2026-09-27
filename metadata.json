@@ -1,0 +1,6 @@
+{
+  "name": "ZoneTube - Modern Video Streaming Platform",
+  "description": "A full-featured, modern video streaming web application with authorized video search, imports, admin dashboard, watch history, and favorites.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
