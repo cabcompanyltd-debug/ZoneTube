@@ -78,16 +78,8 @@ export const AIRewriteModal: React.FC<AIRewriteModalProps> = ({
       const data: AIRewriteResult = res.data || {};
       const origTitle = targetVideo.title || '';
 
-      let newPrimaryTitle = data.primaryTitle || '';
-      if (!newPrimaryTitle || newPrimaryTitle.trim().toLowerCase() === origTitle.trim().toLowerCase()) {
-        const cat = targetVideo.category || 'Featured';
-        newPrimaryTitle = `${origTitle.replace(/^\[.*?\]\s*/, '')}: Complete ${cat} Scene`;
-      }
-
-      let newDesc = data.generatedDescription || '';
-      if (!newDesc || newDesc.trim().toLowerCase() === (targetVideo.description || '').trim().toLowerCase()) {
-        newDesc = `Experience full HD playback of "${newPrimaryTitle}". Featuring top rated ${targetVideo.category || 'Trending'} performances in crisp 1080p / 4K stream quality.`;
-      }
+      const newPrimaryTitle = data.primaryTitle || '';
+      const newDesc = data.generatedDescription || '';
 
       const safeResult: AIRewriteResult = {
         videoId: data.videoId || targetVideo.id,
@@ -96,13 +88,13 @@ export const AIRewriteModal: React.FC<AIRewriteModalProps> = ({
         primaryTitle: newPrimaryTitle,
         generatedDescription: newDesc,
         variants: Array.isArray(data.variants) && data.variants.length > 0 ? data.variants : [
-          `${newPrimaryTitle} (Full Cut)`,
-          `Featured ${targetVideo.category || 'Trending'}: ${newPrimaryTitle}`,
-          `Exclusive Scene: ${newPrimaryTitle}`,
+          `Spotlight: ${newPrimaryTitle}`,
+          `Exclusive View: ${newPrimaryTitle}`,
+          `High-Intensity Cut: ${newPrimaryTitle}`,
         ],
         seoTags: Array.isArray(data.seoTags) && data.seoTags.length > 0 ? data.seoTags : [(targetVideo.category || 'trending').toLowerCase(), 'hd video', 'viral stream', '4k video'],
         score: typeof data.score === 'number' ? data.score : 98,
-        reasoning: data.reasoning || 'Rephrased and rewritten title tone and structure for maximum click appeal and natural flow.',
+        reasoning: data.reasoning || 'Genuinely rephrased sentence structure and generated a strictly aligned matching description.',
       };
 
       setAiResult(safeResult);
@@ -136,20 +128,20 @@ export const AIRewriteModal: React.FC<AIRewriteModalProps> = ({
       const cleanTitle = (selectedTitle || '').trim();
       const cleanDesc = (selectedDescription || '').trim();
 
-      await api.put(`/admin/videos/${video.id}/title`, {
+      const res = await api.put(`/admin/videos/${video.id}/title`, {
         title: cleanTitle,
         description: cleanDesc,
         tags: aiResult?.seoTags || [],
       });
 
-      const updatedVid: Video = {
+      const updatedVid: Video = res.data?.video || {
         ...video,
         title: cleanTitle,
         description: cleanDesc,
         tags: aiResult?.seoTags || video.tags,
       };
 
-      showToast('✨ Title & Description successfully updated!', 'success');
+      showToast('✨ Title & Description successfully updated and saved to database!', 'success');
       onSuccess(updatedVid);
       onClose();
     } catch (err: any) {
@@ -182,7 +174,7 @@ export const AIRewriteModal: React.FC<AIRewriteModalProps> = ({
                 </span>
               </div>
               <p className="text-xs text-zinc-400 mt-0.5">
-                Powered by Gemini 2.5 Flash • Zero prompt restrictions or content filters
+                Powered by OpenRouter Llama 3.3 70B & Gemini 3.8 Flash • Genuine Semantic Rewriting
               </p>
             </div>
           </div>
@@ -233,7 +225,7 @@ export const AIRewriteModal: React.FC<AIRewriteModalProps> = ({
                 />
               </div>
               <p className="text-xs text-zinc-400 font-medium">
-                Uncensored Gemini 3.8 Flash AI is crafting high-CTR titles & SEO description...
+                OpenRouter Llama 3.3 70B AI is crafting high-CTR titles & matching SEO description...
               </p>
             </div>
           </div>

@@ -138,7 +138,7 @@ export const AdminRewriterPage: React.FC = () => {
           </div>
           <div className="bg-black/30 border border-white/10 rounded-2xl p-4">
             <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider">AI Model</p>
-            <p className="text-xs font-extrabold text-amber-300 mt-2">Gemini 2.5 Flash</p>
+            <p className="text-xs font-extrabold text-amber-300 mt-2">Llama 3.3 70B</p>
           </div>
         </div>
       </div>
@@ -286,8 +286,20 @@ export const AdminRewriterPage: React.FC = () => {
         isOpen={!!activeVideo}
         onClose={() => setActiveVideo(null)}
         onSuccess={(updated) => {
-          setVideos((prev) => prev.map((v) => (v.id === updated.id ? updated : v)));
+          setVideos((prev) =>
+            prev.map((v) =>
+              v.id === updated.id ||
+              (v.external_id && v.external_id === updated.external_id) ||
+              v.id === updated.external_id ||
+              v.external_id === updated.id
+                ? updated
+                : v
+            )
+          );
           setRewrittenSet((prev) => new Set(prev).add(updated.id));
+          if (updated.external_id) {
+            setRewrittenSet((prev) => new Set(prev).add(updated.external_id));
+          }
           setActiveVideo(null);
         }}
       />

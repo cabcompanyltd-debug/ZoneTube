@@ -972,29 +972,80 @@ router.put('/admin/videos/:id/title', requireAdmin, async (req: AuthRequest, res
 
     const cleanTitle = title.trim();
     const cleanDesc = description ? description.trim() : undefined;
+    const cleanTags = Array.isArray(tags) ? tags : undefined;
+    const nowIso = new Date().toISOString();
 
-    // 1. Update in InsForge DB
+    // 1. Update in InsForge DB (try by id and external_id)
     try {
       await insforgeDb.update('videos', id, {
         title: cleanTitle,
         ...(cleanDesc !== undefined ? { description: cleanDesc } : {}),
-        ...(tags ? { tags } : {}),
+        ...(cleanTags ? { tags: cleanTags } : {}),
+        updated_at: nowIso,
       });
     } catch (e) {
       console.warn('InsForge update video title fallback to local DB');
     }
 
-    // 2. Update local memory DB
-    const localVideos = db.get('videos');
+    // 2. Update local DB and write to disk
+    const localVideos = db.get('videos') || [];
     const idx = localVideos.findIndex((v) => v.id === id || v.external_id === id);
+
+    let updatedVideo: Video;
     if (idx !== -1) {
-      localVideos[idx].title = cleanTitle;
-      if (cleanDesc !== undefined) localVideos[idx].description = cleanDesc;
-      if (tags) localVideos[idx].tags = tags;
+      localVideos[idx] = {
+        ...localVideos[idx],
+        title: cleanTitle,
+        ...(cleanDesc !== undefined ? { description: cleanDesc } : {}),
+        ...(cleanTags ? { tags: cleanTags } : {}),
+        updated_at: nowIso,
+      };
+      updatedVideo = localVideos[idx];
+      db.update('videos', localVideos);
+    } else {
+      // Find from InsForge or create the entry to guarantee it persists in local DB
+      const insforgeVideos = await insforgeDb.select<Video>('videos');
+      const found = insforgeVideos.find((v) => v.id === id || v.external_id === id);
+      updatedVideo = found
+        ? {
+            ...found,
+            title: cleanTitle,
+            ...(cleanDesc !== undefined ? { description: cleanDesc } : {}),
+            ...(cleanTags ? { tags: cleanTags } : {}),
+            updated_at: nowIso,
+          }
+        : ({
+            id,
+            external_id: id,
+            title: cleanTitle,
+            description: cleanDesc || '',
+            tags: cleanTags || [],
+            thumbnail_url: '',
+            embed_url: '',
+            duration: '10:00',
+            category: 'General',
+            channel: 'ZoneTube',
+            provider: 'custom',
+            status: 'published',
+            is_featured: false,
+            is_trending: false,
+            is_recommended: false,
+            view_count: 0,
+            created_at: nowIso,
+            updated_at: nowIso,
+          } as Video);
+
+      localVideos.unshift(updatedVideo);
       db.update('videos', localVideos);
     }
 
-    return res.json({ message: 'Video title & description updated successfully', id, title: cleanTitle, description: cleanDesc });
+    return res.json({
+      message: 'Video title & description updated successfully',
+      id,
+      title: cleanTitle,
+      description: cleanDesc,
+      video: updatedVideo,
+    });
   } catch (err: any) {
     return res.status(500).json({ error: err?.message || 'Failed to update video title' });
   }
@@ -1009,6 +1060,7 @@ router.post('/admin/rewrite-title/batch', requireAdmin, async (req: AuthRequest,
     }
 
     const batchToProcess = videos.slice(0, 15);
+    const nowIso = new Date().toISOString();
 
     const results = await Promise.all(
       batchToProcess.map(async (v) => {
@@ -1027,15 +1079,39 @@ router.post('/admin/rewrite-title/batch', requireAdmin, async (req: AuthRequest,
               title: rewriteRes.primaryTitle,
               description: rewriteRes.generatedDescription,
               tags: rewriteRes.seoTags,
+              updated_at: nowIso,
             });
           } catch (e) {}
 
-          const localVideos = db.get('videos');
+          const localVideos = db.get('videos') || [];
           const idx = localVideos.findIndex((lv) => lv.id === v.id || lv.external_id === v.id);
           if (idx !== -1) {
             localVideos[idx].title = rewriteRes.primaryTitle;
             localVideos[idx].description = rewriteRes.generatedDescription;
             localVideos[idx].tags = rewriteRes.seoTags;
+            localVideos[idx].updated_at = nowIso;
+            db.update('videos', localVideos);
+          } else {
+            localVideos.unshift({
+              id: v.id,
+              external_id: v.external_id || v.id,
+              title: rewriteRes.primaryTitle,
+              description: rewriteRes.generatedDescription,
+              tags: rewriteRes.seoTags,
+              thumbnail_url: v.thumbnail_url || '',
+              embed_url: v.embed_url || '',
+              duration: v.duration || '10:00',
+              category: v.category || 'General',
+              channel: v.channel || 'ZoneTube',
+              provider: v.provider || 'custom',
+              status: 'published',
+              is_featured: false,
+              is_trending: false,
+              is_recommended: false,
+              view_count: 0,
+              created_at: nowIso,
+              updated_at: nowIso,
+            });
             db.update('videos', localVideos);
           }
 
