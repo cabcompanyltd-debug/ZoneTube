@@ -36,7 +36,6 @@ import { PlaylistsPage } from './pages/user/PlaylistsPage';
 import { AddToPlaylistModal } from './components/video/AddToPlaylistModal';
 
 import { AdminDashboardPage } from './pages/admin/AdminDashboardPage';
-import { AdminRewriterPage } from './pages/admin/AdminRewriterPage';
 import { AdminVideosPage } from './pages/admin/AdminVideosPage';
 import { AdminImportPage } from './pages/admin/AdminImportPage';
 import { AdminCategoriesPage } from './pages/admin/AdminCategoriesPage';
@@ -203,8 +202,6 @@ function MainApp() {
       switch (adminTab) {
         case 'dashboard':
           return <AdminDashboardPage {...({ onNavigateTab: setAdminTab } as any)} />;
-        case 'rewriter':
-          return <AdminRewriterPage />;
         case 'videos':
           return <AdminVideosPage />;
         case 'import':

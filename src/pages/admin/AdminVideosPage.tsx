@@ -4,7 +4,6 @@ import { Button } from '../../components/common/Button';
 import { Modal } from '../../components/common/Modal';
 import { Input } from '../../components/common/Input';
 import { useToast } from '../../contexts/ToastContext';
-import { AIRewriteModal } from '../../components/admin/AIRewriteModal';
 import api from '../../lib/api';
 
 export const AdminVideosPage: React.FC = () => {
@@ -21,7 +20,6 @@ export const AdminVideosPage: React.FC = () => {
   // Modals state
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingVideo, setEditingVideo] = useState<Video | null>(null);
-  const [aiRewriteVideo, setAiRewriteVideo] = useState<Video | null>(null);
 
   const { showToast } = useToast();
 
@@ -498,14 +496,6 @@ export const AdminVideosPage: React.FC = () => {
                       <td className="p-3 text-right">
                         <div className="flex items-center justify-end gap-1.5">
                           <button
-                            onClick={() => setAiRewriteVideo(v)}
-                            className="px-2.5 py-1.5 flex items-center gap-1 bg-gradient-to-r from-purple-900/60 to-red-900/60 hover:from-purple-800 hover:to-red-800 border border-purple-500/40 text-purple-200 font-bold rounded-lg transition-all text-[11px] cursor-pointer shadow-sm"
-                            title="Uncensored AI Title & Description Rewrite"
-                          >
-                            <span>✨</span>
-                            <span className="hidden sm:inline">AI Rewrite</span>
-                          </button>
-                          <button
                             onClick={() => handleOpenEdit(v)}
                             className="w-8 h-8 flex items-center justify-center bg-white/5 hover:bg-white/15 text-zinc-300 hover:text-white rounded-lg transition-colors cursor-pointer"
                             title="Edit Details"
@@ -647,17 +637,6 @@ export const AdminVideosPage: React.FC = () => {
           </div>
         </form>
       </Modal>
-
-      {/* AIRewriteModal */}
-      <AIRewriteModal
-        video={aiRewriteVideo}
-        isOpen={!!aiRewriteVideo}
-        onClose={() => setAiRewriteVideo(null)}
-        onSuccess={(updated) => {
-          setVideos((prev) => prev.map((item) => (item.id === updated.id ? updated : item)));
-          setAiRewriteVideo(null);
-        }}
-      />
     </div>
   );
 };

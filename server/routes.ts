@@ -18,7 +18,6 @@ import {
   extractXVideosId,
 } from './providerAdapter';
 import { processAndImportXVideosDump } from './xvideosDbImporter';
-import { executeSemanticRewrite, fallbackSemanticRewrite, isTitleTooSimilar } from './rewriteEngine';
 
 const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY || '',
@@ -928,39 +927,7 @@ router.get('/admin/stats', requireAdmin, async (req: AuthRequest, res: Response)
   });
 });
 
-/* ==========================================
-   AI TITLE REWRITER ENDPOINTS (Gemini 2.5 Flash + Intelligent Rephraser)
- ========================================== */
-
-// Admin AI Title & Description Rewriter (Single)
-router.post('/admin/rewrite-title', requireAdmin, async (req: AuthRequest, res: Response) => {
-  try {
-    const { videoId, title, category, description, tags } = req.body;
-
-    if (!title || !title.trim()) {
-      return res.status(400).json({ error: 'Original title is required for AI rewriting' });
-    }
-
-    const result = await executeSemanticRewrite(ai, {
-      videoId,
-      title: title.trim(),
-      category,
-      description,
-      tags,
-    });
-
-    return res.json(result);
-  } catch (err: any) {
-    console.error('AI Rewrite Title Error:', err);
-    const fallback = fallbackSemanticRewrite(req.body.title || 'Video Stream', req.body.description, req.body.category);
-    return res.json({
-      videoId: req.body.videoId,
-      ...fallback,
-    });
-  }
-});
-
-// Save Rewritten Title & Description to Database
+// Save Updated Video Title & Description to Database
 router.put('/admin/videos/:id/title', requireAdmin, async (req: AuthRequest, res: Response) => {
   try {
     const { id } = req.params;
@@ -1048,100 +1015,6 @@ router.put('/admin/videos/:id/title', requireAdmin, async (req: AuthRequest, res
     });
   } catch (err: any) {
     return res.status(500).json({ error: err?.message || 'Failed to update video title' });
-  }
-});
-
-// Admin Batch AI Title Rewriter
-router.post('/admin/rewrite-title/batch', requireAdmin, async (req: AuthRequest, res: Response) => {
-  try {
-    const { videos } = req.body;
-    if (!Array.isArray(videos) || videos.length === 0) {
-      return res.status(400).json({ error: 'At least one video is required for batch rewriting' });
-    }
-
-    const batchToProcess = videos.slice(0, 15);
-    const nowIso = new Date().toISOString();
-
-    const results = await Promise.all(
-      batchToProcess.map(async (v) => {
-        try {
-          const rewriteRes = await executeSemanticRewrite(ai, {
-            videoId: v.id,
-            title: v.title,
-            category: v.category,
-            description: v.description,
-            tags: v.tags,
-          });
-
-          // Auto update DB with both new title and matching new description
-          try {
-            await insforgeDb.update('videos', v.id, {
-              title: rewriteRes.primaryTitle,
-              description: rewriteRes.generatedDescription,
-              tags: rewriteRes.seoTags,
-              updated_at: nowIso,
-            });
-          } catch (e) {}
-
-          const localVideos = db.get('videos') || [];
-          const idx = localVideos.findIndex((lv) => lv.id === v.id || lv.external_id === v.id);
-          if (idx !== -1) {
-            localVideos[idx].title = rewriteRes.primaryTitle;
-            localVideos[idx].description = rewriteRes.generatedDescription;
-            localVideos[idx].tags = rewriteRes.seoTags;
-            localVideos[idx].updated_at = nowIso;
-            db.update('videos', localVideos);
-          } else {
-            localVideos.unshift({
-              id: v.id,
-              external_id: v.external_id || v.id,
-              title: rewriteRes.primaryTitle,
-              description: rewriteRes.generatedDescription,
-              tags: rewriteRes.seoTags,
-              thumbnail_url: v.thumbnail_url || '',
-              embed_url: v.embed_url || '',
-              duration: v.duration || '10:00',
-              category: v.category || 'General',
-              channel: v.channel || 'ZoneTube',
-              provider: v.provider || 'custom',
-              status: 'published',
-              is_featured: false,
-              is_trending: false,
-              is_recommended: false,
-              view_count: 0,
-              created_at: nowIso,
-              updated_at: nowIso,
-            });
-            db.update('videos', localVideos);
-          }
-
-          return {
-            id: v.id,
-            originalTitle: v.title,
-            primaryTitle: rewriteRes.primaryTitle,
-            generatedDescription: rewriteRes.generatedDescription,
-            score: rewriteRes.score || 95,
-            seoTags: rewriteRes.seoTags || [],
-            success: true,
-          };
-        } catch (e: any) {
-          const fallback = fallbackSemanticRewrite(v.title, v.description, v.category);
-          return {
-            id: v.id,
-            originalTitle: v.title,
-            primaryTitle: fallback.primaryTitle,
-            generatedDescription: fallback.generatedDescription,
-            score: fallback.score,
-            seoTags: fallback.seoTags,
-            success: true,
-          };
-        }
-      })
-    );
-
-    return res.json({ results });
-  } catch (err: any) {
-    return res.status(500).json({ error: err?.message || 'Batch rewrite failed' });
   }
 });
 

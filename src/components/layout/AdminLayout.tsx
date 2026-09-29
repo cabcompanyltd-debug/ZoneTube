@@ -23,7 +23,6 @@ export const AdminLayout: React.FC<AdminLayoutProps> = ({
 
   const adminNav = [
     { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-    { id: 'rewriter', label: 'AI Title Rewriter', icon: '🪄' },
     { id: 'videos', label: 'Video Management', icon: '📹' },
     { id: 'import', label: 'Search & Import', icon: '📥' },
     { id: 'categories', label: 'Categories', icon: '🏷️' },
