@@ -438,7 +438,7 @@ function MainApp() {
           onClose={() => setIsMobileSidebarOpen(false)}
         />
 
-        <main className="flex-1 p-4 md:p-6 lg:p-8 min-w-0 overflow-x-hidden">
+        <main className="flex-1 p-3.5 sm:p-5 md:p-6 lg:p-8 pb-28 lg:pb-8 min-w-0 overflow-x-hidden">
           {renderContent()}
         </main>
       </div>

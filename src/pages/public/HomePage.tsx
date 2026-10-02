@@ -270,47 +270,47 @@ export const HomePage: React.FC<HomePageProps> = ({
         </div>
       )}
 
-      {/* Category Pills Filter Bar */}
-      <div className="space-y-2">
+      {/* Category Pills Filter Bar with Smooth Horizontal Scroll */}
+      <div className="space-y-2.5">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-zinc-400 uppercase tracking-wider">
-            Filter by Category:
+          <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider flex items-center gap-1.5">
+            <span>🏷️</span> Filter by Category
           </span>
           {selectedCategory !== 'All' && (
             <button
               onClick={() => handleSelectCategory('All')}
-              className="text-xs font-bold text-[var(--accent-red)] hover:underline flex items-center gap-1 cursor-pointer"
+              className="text-xs font-bold text-[var(--accent-red)] hover:underline flex items-center gap-1 cursor-pointer active:scale-95"
             >
-              Reset Filter (Show All)
+              Reset to All ✕
             </button>
           )}
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none">
+        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none no-scrollbar -mx-4 px-4 sm:mx-0 sm:px-0">
           {['All', ...Array.from(new Set(categories.map((c) => c.name)))].map((cat, idx) => {
             const isSel = selectedCategory === cat;
+            const count = countryFilteredVideos.filter(
+              (v) => v.category && v.category.toLowerCase() === cat.toLowerCase()
+            ).length;
+
             return (
               <button
                 key={`${cat}-${idx}`}
                 onClick={() => handleSelectCategory(cat)}
-                className={`px-4 py-2 rounded-full text-xs font-bold transition-all whitespace-nowrap shrink-0 border flex items-center gap-1.5 cursor-pointer ${
+                className={`px-3.5 sm:px-4 py-2 rounded-xl text-xs font-bold transition-all whitespace-nowrap shrink-0 border flex items-center gap-1.5 cursor-pointer active:scale-95 ${
                   isSel
-                    ? 'bg-white text-black border-white shadow-lg scale-105'
-                    : 'bg-[#151821] text-zinc-300 border-white/10 hover:border-white/30 hover:text-white'
+                    ? 'bg-[var(--accent-red)] text-white border-transparent shadow-lg shadow-red-600/30'
+                    : 'bg-[#151821] hover:bg-[#1C202D] text-zinc-300 border-white/10 hover:border-white/20 hover:text-white'
                 }`}
               >
                 <span>{cat}</span>
                 {cat !== 'All' && (
                   <span
-                    className={`text-[10px] px-1.5 py-0.2 rounded-full font-mono ${
-                      isSel ? 'bg-black text-white' : 'bg-white/10 text-zinc-400'
+                    className={`text-[10px] px-1.5 py-0.5 rounded-md font-mono tabular-nums ${
+                      isSel ? 'bg-black/30 text-white' : 'bg-white/5 text-zinc-400'
                     }`}
                   >
-                    {
-                      countryFilteredVideos.filter(
-                        (v) => v.category.toLowerCase() === cat.toLowerCase()
-                      ).length
-                    }
+                    {count}
                   </span>
                 )}
               </button>
